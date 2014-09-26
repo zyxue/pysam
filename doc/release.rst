@@ -7,16 +7,23 @@ Release 0.8.0
 
   * Disabled features
      * IteratorColumn.setMask() disabled as
-       htslib does not implement this functionality?
-
-  * Not implemented yet:
+       htslib does not implement this functionality
      * reading SAM files without header
-     * samtools stepper
 
-  * tabix needs to be re-indexed
-  * tabix iterators will not return comments
-    (TODO: full iterator)
-  * tabix raises always ValueError for invalid intervals
+  Tabix files between version 0.7.8 and 0.8.0 are
+  not compatible and need to be re-indexed.
+
+  While version 0.7.8 and 0.8.0 should be mostly
+  compatible, there are some notable exceptions:
+ 
+  * tabix iterators will fail if there are comments
+    in the middle or the end of a file.
+
+  * tabix raises always ValueError for invalid intervals.
+    Previously, different types of errors were raised
+    (KeyError, IndexError, ValueError) depending on
+    the type of invalid intervals (missing chromosome,
+    out-of-range, malformatted interval).
 
 Release 0.7.8
 =============
