@@ -9,7 +9,6 @@ import pysam.cvcf as cvcf
 from pysam.cvcf import *
 import pysam.csamtools as csamtools
 
-
 import pysam.Pileup as Pileup
 import os
 
@@ -156,11 +155,26 @@ def get_include():
     '''return a list of include directories.'''
     dirname = os.path.abspath(os.path.join(os.path.dirname(__file__)))
     return [dirname,
-            os.path.join(dirname, 'include', 'htslib'),
-            os.path.join(dirname, 'include', 'samtools')]
+            os.path.join(dirname, 'include', 'htslib')]
+    # not necessary?
+    # os.path.join(dirname, 'include', 'samtools')]
 
 
 def get_defines():
     '''return a list of defined compilation parameters.'''
     return [('_FILE_OFFSET_BITS', '64'),
             ('_USE_KNETFILE', '')]
+
+
+def get_libraries():
+    '''return a list of libraries to link against.'''
+    # Note that this list does not include csamtools.so as there are
+    # numerous name conflicts with libchtslib.so.
+    dirname = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+    return [os.path.join(dirname, x) for x in (
+        'libchtslib.so',
+        'TabProxies.so',
+        'cfaidx.so',
+        'csamfile.so',
+        'cvcf.so',
+        'ctabix.so')]
