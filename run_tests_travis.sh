@@ -4,6 +4,9 @@ pushd .
 
 WORKDIR=`pwd`
 
+echo $TRAVIS_OS_NAME
+printenv
+
 if [ $TRAVIS_OS_NAME == "osx" ]; then
 	brew update
 	brew install python --universal --framework
