@@ -1,26 +1,16 @@
 os:
-  - linx
-#  - osx
+- linux
+- osx
 
-language: python
+language: c
 
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
+sudo: required
 
-sudo: false
+services:
+- docker
 
-addons:
-  apt:
-    packages:
-    - gcc
-    - g++
+install: scripts/travis-setup.sh
 
-script:
-  - ./run_tests_travis.sh
+script: travis_wait 119 scripts/travis-run.sh
 
-notifications:
-  email:
-    - andreas.heger@gmail.com
+
