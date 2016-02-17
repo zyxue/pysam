@@ -9,8 +9,8 @@ sudo: required
 services:
 - docker
 
-install: scripts/travis-setup.sh
+install: travis-setup.sh
 
-script: travis_wait 119 scripts/travis-run.sh
+script: travis_wait 119 travis-run.sh
 
 
