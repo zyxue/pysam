@@ -342,23 +342,23 @@ parts = ["samtools",
          "vcf",
          "bcf"]
 
-# remove existing files to recompute
-# necessary to be both compatible for python 2.7 and 3.3
-if IS_PYTHON3:
-    for part in parts:
-        try:
-            os.unlink("pysam/c%s.c" % part)
-        except:
-            pass
+# # remove existing files to recompute
+# # necessary to be both compatible for python 2.7 and 3.3
+# if IS_PYTHON3:
+#     for part in parts:
+#         try:
+#             os.unlink("pysam/c%s.c" % part)
+#         except:
+#             pass
 
-# Exit if there are no pre-compiled files and no cython available
-fn = source_pattern % "htslib"
-if not os.path.exists(fn):
-    raise ValueError(
-        "no cython installed, but can not find {}."
-        "Make sure that cython is installed when building "
-        "from the repository"
-        .format(fn))
+# # Exit if there are no pre-compiled files and no cython available
+# fn = source_pattern % "htslib"
+# if not os.path.exists(fn):
+#     raise ValueError(
+#         "no cython installed, but can not find {}."
+#         "Make sure that cython is installed when building "
+#         "from the repository"
+#         .format(fn))
 
 
 #######################################################
