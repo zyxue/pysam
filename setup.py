@@ -76,6 +76,37 @@ def configure_library(library_dir, env_options=None, options=[]):
     return None
 
 
+def check_cython():
+    # Check if cython is available
+    #
+    # If cython is available, the pysam will be built using cython from
+    # the .pyx files. If no cython is available, the C-files included in the
+    # distribution will be used.
+    try:
+        from cy_build import CyExtension as Extension, cy_build_ext as build_ext
+        source_pattern = "pysam/c%s.pyx"
+        cmdclass = {'build_ext': build_ext}
+        htslib_mode = "shared"
+        logging.info('cython found. use HTSLIB_MODE: {0}'.format(HTSLIB_MODE))
+    except ImportError:
+        # no Cython available - use existing C code
+        cmdclass = {}
+        source_pattern = "pysam/c%s.c"
+        # Set mode to separate, as "shared" not fully tested yet.
+        htslib_mode = "separate"
+        logging.warning(
+            'cython not installed. use HTSLIB_MODE: {0}'.format(HTSLIB_MODE))
+    return source_pattern, cmdclass, htslib_mode
+
+
+def check_version():
+    # collect pysam version
+    sys.path.insert(0, "pysam")
+    import version
+    version = version.__version__
+    logging.info('pysam version: {0}'.format(version))
+
+
 # How to link against HTSLIB
 # separate: use included htslib and include in each extension
 #           module. No dependencies between modules and works
