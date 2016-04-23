@@ -91,7 +91,7 @@ def check_cython():
         source_pattern = "pysam/c%s.pyx"
         cmdclass = {'build_ext': build_ext}
         htslib_mode = "shared"
-        logging.info('cython found. use HTSLIB_MODE: {0}'.format(HTSLIB_MODE))
+        logging.info('cython found. use HTSLIB_MODE: {0}'.format(htslib_mode))
     except ImportError:
         # no Cython available - use existing C code
         cmdclass = {}
@@ -99,7 +99,7 @@ def check_cython():
         # Set mode to separate, as "shared" not fully tested yet.
         htslib_mode = "separate"
         logging.warning(
-            'cython not installed. use HTSLIB_MODE: {0}'.format(HTSLIB_MODE))
+            'cython not installed. use HTSLIB_MODE: {0}'.format(htslib_mode))
     return source_pattern, cmdclass, htslib_mode
 
 
