@@ -147,6 +147,118 @@ def get_exclude():
     }
 
 
+def get_htslib_source(htslib_mode):
+    if htslib_mode in ['shared', 'separate']:
+        return 'builtin'
+    else:
+        return ''
+
+
+def update_htslib_configure_options(htslib_mode, htslib_configure_options):
+    if htslib_mode in ['shared', 'separate']:
+        options = configure_library(
+            "htslib",
+            htslib_configure_options,
+            ["--enable-libcurl"])
+
+        logging.info("htslib configure options: {}".format(str(options)))
+
+        if options is None:
+            # create empty config.h file
+            with open("htslib/config.h", "w") as outf:
+                outf.write("/* empty config.h created by pysam */\n")
+                outf.write("/* conservative compilation options */\n")
+    return options
+
+
+def get_internal_htslib_libraries_for_shared(is_python3):
+    if is_python3:
+        import sysconfig
+        if sys.version_info.minor >= 5:
+            internal_htslib_libraries = ["chtslib.{}".format(
+                sysconfig.get_config_var('SOABI'))]
+        else:
+            if sys.platform == "darwin":
+                # On OSX, python 3.3 and 3.4 Libs have no platform tags.
+                internal_htslib_libraries = ["chtslib"]
+            else:
+                internal_htslib_libraries = ["chtslib.{}{}".format(
+                    sys.implementation.cache_tag,
+                    sys.abiflags)]
+    else:
+        internal_htslib_libraries = ["chtslib"]
+    return internal_htslib_libraries
+
+
+def gen_htslib_vars(htslib_library_dir,
+                    htslib_include_dir,
+                    htslib_mode,
+                    is_python3):
+    """
+    generate the following htslib related variables:
+        htslib_sources
+        shared_htslib_sources
+        chtslib_sources
+        htslib_library_dirs
+        htslib_include_dirs
+        internal_htslib_libraries
+        external_htslib_libraries
+    """
+    if htslib_library_dir:
+        # linking against a shared, externally installed htslib version, no
+        # sources required for htslib
+        return ([], [], [],
+                [htslib_library_dir], [htslib_include_dir], [], ['z', 'hts'])
+
+    if htslib_mode == 'separate':
+        # add to each pysam component a separately compiled htslib
+        htslib_sources = [
+            x for x in
+            glob.glob(os.path.join("htslib", "*.c")) +
+            glob.glob(os.path.join("htslib", "cram", "*.c"))
+            if x not in EXCLUDE["htslib"]]
+        shared_htslib_sources = htslib_sources
+        return (htslib_sources, shared_htslib_sources,
+                [], [], ['htslib'], [], ['z'])
+
+    if htslib_mode == 'shared':
+        # link each pysam component against the same htslib built from sources
+        # included in the pysam package.
+        shared_htslib_sources = [
+            x for x in
+            glob.glob(os.path.join("htslib", "*.c")) +
+            glob.glob(os.path.join("htslib", "cram", "*.c"))
+            if x not in EXCLUDE["htslib"]]
+        internal_lib = get_internal_htslib_libraries_for_shared(is_python3)
+        return ([], shared_htslib_sources, [], ['pysam', "."], ['htslib'],
+                internal_lib, ['z'])
+
+    raise ValueError("unknown HTSLIB value '%s'" % HTSLIB_MODE)
+
+
+def build_config(htslib_source):
+    # build config.py
+    with open(os.path.join("pysam", "config.py"), "w") as outf:
+        outf.write('HTSLIB = "{}"\n'.format(HTSLIB_SOURCE))
+        config_values = collections.defaultdict(int)
+
+        if htslib_source == "builtin":
+            with open(os.path.join("htslib", "config.h")) as inf:
+                for line in inf:
+                    if line.startswith("#define"):
+                        key, value = re.match(
+                            "#define (\S+)\s+(\S+)", line).groups()
+                        config_values[key] = int(value)
+                for key in ["ENABLE_PLUGINS",
+                            "HAVE_COMMONCRYPTO",
+                            "HAVE_GMTIME_R",
+                            "HAVE_HMAC",
+                            "HAVE_IRODS",
+                            "HAVE_LIBCURL",
+                            "HAVE_MMAP"]:
+                    outf.write("{} = {}\n".format(key, config_values[key]))
+
+
 # How to link against HTSLIB
 # separate: use included htslib and include in each extension
 #           module. No dependencies between modules and works
