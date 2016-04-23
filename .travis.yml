@@ -1,26 +1,12 @@
-os:
-  - linx
-  - osx
-
-language: c
-sudo: required
-
-env:
-  matrix:
-    - CONDA_PY=2.7
-    - CONDA_PY=3.3
-    - CONDA_PY=3.4
-    - CONDA_PY=3.5
-
-addons:
-  apt:
-    packages:
-    - gcc
-    - g++
-
-script:
-  - ./run_tests_travis.sh
-
-notifications:
-  email:
-    - andreas.heger@gmail.com
+# Validate this file using http://lint.travis-ci.org/
+language: python
+sudo: false
+cache:
+  directories:
+    - $HOME/.cache/pip
+python:
+  - "2.7"
+  - "3.5"
+install:
+  - python setup.py install
+script: python setup.py test
