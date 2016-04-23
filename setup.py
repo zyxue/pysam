@@ -45,25 +45,25 @@ def changedir(path):
         os.chdir(save_dir)
 
 
-def configure_library(library_dir, env_options=None, options=[]):
+def run_configure(option):
+    try:
+        retcode = subprocess.call(
+            " ".join(("./configure", option)),
+            shell=True)
+        if retcode != 0:
+            return False
+        else:
+            return True
+    except OSError as e:
+        return False
 
+
+def configure_library(library_dir, env_options=None, options=[]):
     configure_script = os.path.join(library_dir, "configure")
 
     if not os.path.exists(configure_script):
         raise ValueError(
             "configure script {} does not exist".format(configure_script))
-
-    def run_configure(option):
-        try:
-            retcode = subprocess.call(
-                " ".join(("./configure", option)),
-                shell=True)
-            if retcode != 0:
-                return False
-            else:
-                return True
-        except OSError as e:
-            return False
 
     with changedir(library_dir):
         if env_options is not None:
