@@ -105,6 +105,46 @@ def check_version():
     import version
     version = version.__version__
     logging.info('pysam version: {0}'.format(version))
+    return version
+
+
+def get_exclude():
+    # exclude sources that contain a main function
+    return {
+        "samtools": (
+            'bam2bed.c',
+            'bamcheck.c',
+            'bgzip.c',
+            'calDepth.c',
+            'chk_indel.c',
+            'hfile_irods.c',        # requires irods library
+            'htslib-1.3',           # do not import twice
+            'main.c',
+            'maq2sam.c',
+            'md5fa.c',
+            'md5sum-lite.c',
+            'razip.c',
+            'vcf-miniview.c',
+            'wgsim.c'
+        ),
+
+        "bcftools": (
+            'peakfit.c',
+            'peakfit.h',
+            'plugins',
+            'polysomy.c',
+            # needs to renamed, name conflict with samtools reheader
+            'reheader.c',
+            'test'
+        ),
+
+        "htslib": (
+            'htslib/bgzip.c',
+            'htslib/hfile_irods.c',
+            'htslib/htsfile.c',
+            'htslib/tabix.c'
+        )
+    }
 
 
 # How to link against HTSLIB
